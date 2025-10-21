@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Donut Frenzy</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de la librería Tone.js para generar sonidos retro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <!-- Carga de la fuente Inter, aunque usaremos un fallback retro para el juego -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilo general para el ambiente retro */
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #1a1a2e; /* Fondo oscuro retro */
+            color: #e5e5f7; /* Texto claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Estilo para el lienzo del juego (Canvas) */
+        #gameCanvas {
+            border: 4px solid #f4d03f; /* Borde amarillo de arcade */
+            box-shadow: 0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            background-color: #2c3e50; /* Cielo azul oscuro pixeleado */
+            cursor: none; /* Ocultar cursor en la zona de juego */
+            image-rendering: pixelated; /* ¡Esencial para el look retro! */
+            width: 90vw; /* Ajuste responsive */
+            max-width: 600px;
+            height: auto;
+            aspect-ratio: 4 / 3; /* Relación de aspecto 4:3 para mejor visualización */
+        }
+
+        /* Estilo para los botones */
+        .retro-button {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 10px 20px;
+            margin: 5px;
+            border: 4px solid #c0392b;
+            box-shadow: 0 5px 0 #922b21;
+            transition: all 0.1s;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .retro-button:hover {
+            background-color: #c0392b;
+            box-shadow: 0 2px 0 #922b21;
+            transform: translateY(3px);
+        }
+        .retro-input {
+            background-color: #3b3b54;
+            color: #e5e5f7;
+            border: 2px solid #f4d03f;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            font-family: monospace;
+        }
+
+        /* Contenedor principal con efecto de pixelado y centrado */
+        .game-container {
+            width: 100%;
+            max-width: 650px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="game-container text-center">
+        <!-- Título del Juego -->
+        <h1 class="text-3xl mb-4 text-yellow-300 shadow-lg" style="text-shadow: 4px 4px #e74c3c;">PIXEL DONUT FRENZY</h1>
+        
+        <!-- PANTALLA DE AUTENTICACIÓN -->
+        <div id="authScreen" class="p-6 bg-gray-800 border-4 border-yellow-500 rounded-lg max-w-sm mx-auto">
+            <h2 class="text-2xl mb-4 text-pink-400">ACCESO</h2>
+            <input type="email" id="emailInput" placeholder="EMAIL" class="retro-input mb-3" />
+            <input type="password" id="passwordInput" placeholder="CONTRASEÑA" class="retro-input mb-4" />
+            <button id="loginButton" class="retro-button w-full mb-2">INICIAR SESIÓN</button>
+            <button id="registerButton" class="retro-button bg-blue-500 border-blue-700 hover:bg-blue-700 w-full">REGISTRARSE</button>
+            <p id="authMessage" class="mt-3 text-sm text-red-400"></p>
+        </div>
+
+        <!-- PANTALLA DE CARGA (OCULTA INICIALMENTE) -->
+        <div id="loadingScreen" class="hidden mt-4">
+            <h2 class="text-2xl text-yellow-400">CARGANDO...</h2>
+            <p class="mt-2 text-sm">Preparando la máquina arcade.</p>
+        </div>
+        
+        <!-- PANTALLA DE JUEGO (OCULTA INICIALMENTE) -->
+        <div id="gameScreens" class="hidden">
+            <!-- Área de Juego -->
+            <canvas id="gameCanvas" width="400" height="300"></canvas>
+            
+            <!-- Panel de Información -->
+            <div id="statsPanel" class="mt-4 p-3 bg-gray-800 border-4 border-yellow-500 rounded-lg text-sm grid grid-cols-2 gap-2" style="font-family: monospace;">
+                <div class="text-left">USUARIO: <span id="userDisplay" class="text-green-400">...</span></div>
+                <div class="text-right">PUNTOS: <span id="scoreDisplay" class="text-green-400">0</span></div>
+                <div class="col-span-2 text-center text-yellow-400">RÉCORD: <span id="highScoreDisplay" class="text-pink-400">0</span></div>
+                <div class="col-span-2 text-center text-yellow-400">POWER-UP ACTIVO: <span id="powerUpDisplay" class="font-bold">NINGUNO</span></div>
+            </div>
+
+            <!-- Botón de Reinicio (oculto al inicio) -->
+            <div id="gameOverScreen" class="hidden mt-4">
+                <h2 class="text-4xl text-red-500 mb-4" style="text-shadow: 2px 2px #000;">GAME OVER</h2>
+                <button id="startButton" class="retro-button text-lg">REINTENTAR</button>
+            </div>
+            
+            <!-- Botón de Inicio (visible al inicio) -->
+            <div id="startScreen" class="hidden mt-4">
+                <p class="text-lg mb-4">Usa &larr; y &rarr; para moverte.</p>
+                <p class="text-lg mb-4 text-red-400">¡Esquiva bombas y piedras!</p>
+                <button id="initialStartButton" class="retro-button text-xl">EMPEZAR</button>
+                <button id="logoutButton" class="retro-button bg-gray-600 border-gray-700 hover:bg-gray-700 text-sm block mx-auto mt-4">CERRAR SESIÓN</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // === CONFIGURACIÓN GLOBAL DE FIREBASE ===
+        // Usamos las variables globales proporcionadas por el entorno.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDvAkI_aBIiezkbSEwgdmpduaGKtw4XLOs",
+                authDomain: "controlceo-fdd05.firebaseapp.com",
+                projectId: "controlceo-fdd05",
+                storageBucket: "controlceo-fdd05.firebasestorage.app",
+                messagingSenderId: "207151362101",
+                appId: "1:207151362101:web:3ba86ac5680fd41e55417c"
+            };
+
+        // === FIREBASE IMPORTS ===
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // === INICIALIZACIÓN DE FIREBASE ===
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Collección de datos privados del usuario para el High Score
+        const getUserDocRef = (userId) => doc(db, `artifacts/${appId}/users/${userId}/data`, "game_stats");
+
+        // === CONFIGURACIÓN DEL JUEGO ===
+        const CANVAS_WIDTH = 400;
+        const CANVAS_HEIGHT = 300;
+        const PLAYER_SIZE = 30;
+        const BASE_SPEED = 1.5;
+        const SPAWN_INTERVAL_MS = 1000;
+        const OBJECT_SIZE = 25;
+
+        // Elementos del DOM
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const highScoreDisplay = document.getElementById('highScoreDisplay');
+        const powerUpDisplay = document.getElementById('powerUpDisplay');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startButton = document.getElementById('startButton');
+        const initialStartButton = document.getElementById('initialStartButton');
+        const gameScreens = document.getElementById('gameScreens');
+        const userDisplay = document.getElementById('userDisplay');
+        
+        // Elementos de autenticación
+        const authScreen = document.getElementById('authScreen');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginButton = document.getElementById('loginButton');
+        const registerButton = document.getElementById('registerButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const authMessage = document.getElementById('authMessage');
+        const loadingScreen = document.getElementById('loadingScreen');
+
+        // Configuración inicial del Canvas
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        ctx.imageSmoothingEnabled = false;
+
+        // === ESTADO GLOBAL DEL JUEGO ===
+        let score = 0;
+        let highScore = 0; // Inicializado a 0, se carga de Firestore
+        let isPlaying = false;
+        let player;
+        let fallingObjects = [];
+        let keys = {};
+        let lastSpawnTime = 0;
+        let animationFrameId;
+        let userId = null; // ID del usuario autenticado
+        let userEmail = null; // Email del usuario autenticado
+
+        // Power-Up State
+        let activePowerUp = null;
+        let powerUpEndTime = 0;
+        const POWER_UP_DURATION = 5000;
+
+        // === LÓGICA DE AUTENTICACIÓN Y DATOS ===
+
+        function setAuthMessage(message, isError = false) {
+            authMessage.textContent = message;
+            authMessage.className = `mt-3 text-sm ${isError ? 'text-red-400' : 'text-green-400'}`;
+        }
+        
+        async function loadUserHighScore() {
+            if (!userId) return;
+
+            try {
+                const docRef = getUserDocRef(userId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    highScore = docSnap.data().highScore || 0;
+                } else {
+                    // Inicializar el documento si no existe
+                    await setDoc(docRef, { highScore: 0 });
+                    highScore = 0;
+                }
+                updateHighScore(highScore); // Refresca el display
+            } catch (error) {
+                console.error("Error al cargar el High Score:", error);
+                setAuthMessage("Error al cargar el récord. Intenta de nuevo.", true);
+            }
+        }
+
+        async function saveUserHighScore(newScore) {
+            if (!userId || newScore <= highScore) return; // Solo guarda si es un nuevo récord
+
+            try {
+                const docRef = getUserDocRef(userId);
+                highScore = newScore;
+                await setDoc(docRef, { highScore: newScore }, { merge: true });
+                updateHighScore(highScore); // Actualiza el display
+                console.log("High Score guardado exitosamente:", newScore);
+            } catch (error) {
+                console.error("Error al guardar el High Score:", error);
+                // No mostrar al usuario final, solo en consola
+            }
+        }
+
+        // Manejadores de Eventos de Auth
+        loginButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            if (!email || !password) {
+                setAuthMessage("Ingresa email y contraseña.", true);
+                return;
+            }
+            setAuthMessage("Iniciando sesión...");
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error(error);
+                setAuthMessage("Error de sesión: " + (error.message.includes('user-not-found') ? 'Usuario no encontrado' : 'Credenciales inválidas'), true);
+            }
+        });
+
+        registerButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            if (password.length < 6) {
+                setAuthMessage("La contraseña debe tener al menos 6 caracteres.", true);
+                return;
+            }
+            setAuthMessage("Registrando usuario...");
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                setAuthMessage("Registro exitoso. ¡Inicia sesión para jugar!", false);
+            } catch (error) {
+                console.error(error);
+                setAuthMessage("Error de registro: " + (error.message.includes('email-already-in-use') ? 'El email ya está registrado' : 'Error desconocido'), true);
+            }
+        });
+
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+
+        // Listener de estado de autenticación (CRÍTICO)
+        onAuthStateChanged(auth, (user) => {
+            loadingScreen.classList.add('hidden');
+            if (user) {
+                // Usuario logueado
+                authScreen.classList.add('hidden');
+                gameScreens.classList.remove('hidden');
+                startScreen.classList.remove('hidden');
+                
+                userId = user.uid;
+                userEmail = user.email;
+                userDisplay.textContent = userEmail.substring(0, userEmail.indexOf('@')); // Muestra solo el nombre antes del @
+                
+                loadUserHighScore(); // Carga el récord del usuario
+                setAuthMessage("");
+
+            } else {
+                // Usuario no logueado
+                gameScreens.classList.add('hidden');
+                startScreen.classList.add('hidden');
+                authScreen.classList.remove('hidden');
+                userId = null;
+                userEmail = null;
+                highScore = 0;
+                updateHighScore(0);
+                setAuthMessage("Por favor, inicia sesión para guardar tu récord.", true);
+            }
+        });
+
+
+        // === CONFIGURACIÓN DE AUDIO (TONE.JS) ===
+        const synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "square" },
+            envelope: { release: 0.1 }
+        }).toDestination();
+        const noise = new Tone.NoiseSynth({
+             noise: { type: "white" },
+             envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.05 }
+        }).toDestination();
+        const metal = new Tone.MetalSynth().toDestination();
+
+        function playCollectSound() {
+            synth.triggerAttackRelease(["C5", "G5"], "16n");
+        }
+
+        function playHitSound() {
+            noise.triggerAttackRelease("8n", Tone.now(), 0.5);
+            metal.triggerAttackRelease("4n", Tone.now() + 0.1, 0.5);
+        }
+
+        function playPowerUpSound() {
+            synth.triggerAttackRelease(["C6", "E6", "G6", "C7"], "16n");
+        }
+        
+        function playShieldBlockSound() {
+            synth.triggerAttackRelease(["D3", "A3"], "8n", Tone.now(), 0.8);
+        }
+
+        // === IMPLEMENTACIÓN DE POWER-UPS ===
+        const powerUps = {
+            'vacuum': {
+                symbol: '🌀',
+                color: '#3498db',
+                name: 'ASPIRADORA',
+                effect: () => { player.width = PLAYER_SIZE * 2; },
+                cleanup: () => { player.width = PLAYER_SIZE; }
+            },
+            'shield': {
+                symbol: '🛡️',
+                color: '#2ecc71',
+                name: 'ESCUDO',
+                effect: () => {},
+                cleanup: () => {}
+            },
+            'slow': {
+                symbol: '🐌',
+                color: '#f1c40f',
+                name: 'LENTO',
+                effect: () => {},
+                cleanup: () => {}
+            }
+        };
+        
+        // Mapeo de Emojis para los objetos que caen
+        const objectSymbols = {
+            'donut': '🍩',
+            'bomb': '💣',
+            'stone': '🧱',
+        };
+
+
+        // === CLASES DE ENTIDADES ===
+
+        class Player {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.width = size;
+                this.height = size;
+                this.speed = 4;
+                this.lives = 1; 
+            }
+
+            draw() {
+                ctx.font = `${this.height}px sans-serif`;
+                ctx.textAlign = 'center';
+                const emoji = '🛒';
+
+                ctx.fillText(emoji, this.x + this.width / 2, this.y + this.height * 0.9);
+
+                if (activePowerUp === 'shield' && (Date.now() < powerUpEndTime || this.lives > 1)) {
+                    ctx.fillStyle = 'rgba(46, 204, 113, 0.4)';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.fillRect(this.x, this.y, this.width, 3);
+                    ctx.fillRect(this.x, this.y + this.height - 3, this.width, 3);
+                }
+            }
+
+            update() {
+                if (keys['ArrowLeft'] || keys['a']) {
+                    this.x -= this.speed;
+                }
+                if (keys['ArrowRight'] || keys['d']) {
+                    this.x += this.speed;
+                }
+
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+            }
+        }
+
+        class FallingObject {
+            constructor(x, y, type, speed) {
+                this.x = x;
+                this.y = y;
+                this.width = OBJECT_SIZE;
+                this.height = OBJECT_SIZE;
+                this.type = type;
+                this.speed = speed;
+            }
+
+            getSymbol() {
+                if (powerUps[this.type]) {
+                    return powerUps[this.type].symbol;
+                }
+                return objectSymbols[this.type] || '❓';
+            }
+
+            draw() {
+                ctx.font = `${this.height}px sans-serif`;
+                ctx.textAlign = 'center';
+
+                if (powerUps[this.type]) {
+                    ctx.fillStyle = powerUps[this.type].color;
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+
+                ctx.fillText(this.getSymbol(), this.x + this.width / 2, this.y + this.height * 0.9);
+            }
+
+            update() {
+                let currentSpeed = this.speed;
+
+                if (activePowerUp === 'slow' && Date.now() < powerUpEndTime) {
+                    currentSpeed *= 0.4;
+                }
+
+                this.y += currentSpeed;
+
+                if (activePowerUp === 'vacuum' && Date.now() < powerUpEndTime && this.type === 'donut') {
+                    const playerCenterX = player.x + player.width / 2;
+                    const objectCenterX = this.x + this.width / 2;
+                    const diffX = playerCenterX - objectCenterX;
+
+                    this.x += Math.sign(diffX) * 2;
+                }
+            }
+        }
+
+        // === LÓGICA DEL JUEGO ===
+
+        function initGame() {
+            if (!userId) {
+                setAuthMessage("Debes iniciar sesión para empezar a jugar.", true);
+                return;
+            }
+            if (Tone.context.state !== 'running') {
+                Tone.start();
+            }
+
+            score = 0;
+            updateHighScore(highScore); // Mantiene el récord cargado
+            isPlaying = true;
+            player = new Player(CANVAS_WIDTH / 2 - PLAYER_SIZE / 2, CANVAS_HEIGHT - PLAYER_SIZE - 10, PLAYER_SIZE);
+            fallingObjects = [];
+            lastSpawnTime = 0;
+            activePowerUp = null;
+            powerUpEndTime = 0;
+            player.lives = 1;
+
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            document.getElementById('statsPanel').classList.remove('hidden');
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            gameLoop(0);
+        }
+
+        function updateHighScore(newScore) {
+            if (newScore > highScore) {
+                // Solo actualiza el estado visual si es mayor al récord actual.
+                // La función saveUserHighScore se encarga de la persistencia.
+                highScore = newScore;
+            }
+            highScoreDisplay.textContent = highScore;
+        }
+
+        function spawnObject(currentTime) {
+            const timeElapsed = currentTime - lastSpawnTime;
+            const difficultyMultiplier = 1 + Math.floor(score / 150) * 0.1;
+            const spawnInterval = SPAWN_INTERVAL_MS / difficultyMultiplier;
+
+            if (timeElapsed > spawnInterval) {
+                lastSpawnTime = currentTime;
+
+                const x = Math.random() * (CANVAS_WIDTH - OBJECT_SIZE);
+                const speed = BASE_SPEED * difficultyMultiplier;
+
+                let objectType = 'donut';
+                const rand = Math.random();
+
+                if (score > 100 && rand < 0.08) { 
+                    const types = Object.keys(powerUps);
+                    objectType = types[Math.floor(Math.random() * types.length)];
+                } else if (rand < 0.2 + (score / 2000)) {
+                    if (Math.random() < 0.5) {
+                        objectType = 'bomb';
+                    } else {
+                        objectType = 'stone';
+                    }
+                }
+
+                fallingObjects.push(new FallingObject(x, -OBJECT_SIZE, objectType, speed));
+            }
+        }
+
+        function checkCollisions(object, index) {
+            if (
+                object.x < player.x + player.width &&
+                object.x + object.width > player.x &&
+                object.y < player.y + player.height &&
+                object.y + object.height > player.y
+            ) {
+                handleHit(object, index);
+                return true;
+            }
+
+            if (object.y > CANVAS_HEIGHT && object.type === 'donut') {
+                playHitSound();
+                gameOver(); 
+                return true;
+            }
+
+            if (object.y > CANVAS_HEIGHT) {
+                fallingObjects.splice(index, 1);
+                return true;
+            }
+
+            return false;
+        }
+
+        function handleHit(object, index) {
+            fallingObjects.splice(index, 1);
+
+            if (object.type === 'donut') {
+                score += 10;
+                updateHighScore(score); // Actualiza el high score en el estado local si es necesario
+                playCollectSound();
+            } else if (object.type === 'bomb' || object.type === 'stone') {
+                if (activePowerUp === 'shield' && Date.now() < powerUpEndTime) {
+                    player.lives--;
+                    if (player.lives <= 0) {
+                        powerUps[activePowerUp].cleanup();
+                        activePowerUp = null;
+                        powerUpEndTime = 0;
+                    }
+                    playShieldBlockSound();
+                    canvas.style.borderColor = '#3498db';
+                    setTimeout(() => canvas.style.borderColor = '#f4d03f', 200);
+
+                } else {
+                    playHitSound();
+                    gameOver();
+                }
+            } else if (powerUps[object.type]) {
+                activatePowerUp(object.type);
+            }
+        }
+
+        function activatePowerUp(type) {
+            if (activePowerUp && activePowerUp !== type) {
+                powerUps[activePowerUp].cleanup();
+            }
+
+            activePowerUp = type;
+            powerUpEndTime = Date.now() + POWER_UP_DURATION;
+            player.lives = (type === 'shield' ? 2 : 1);
+
+            powerUps[activePowerUp].effect();
+            powerUpDisplay.textContent = powerUps[activePowerUp].name;
+            canvas.style.boxShadow = `0 0 30px 10px ${powerUps[activePowerUp].color}, inset 0 0 15px rgba(255, 255, 255, 0.7)`;
+            playPowerUpSound();
+        }
+
+        function checkPowerUpExpiry() {
+            if (activePowerUp && Date.now() > powerUpEndTime) {
+                powerUps[activePowerUp].cleanup();
+                activePowerUp = null;
+                powerUpDisplay.textContent = 'NINGUNO';
+                canvas.style.boxShadow = '0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5)';
+                player.lives = 1;
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            cancelAnimationFrame(animationFrameId);
+
+            // Intentar guardar el récord si la puntuación es mayor al récord cargado
+            if (score > highScore) {
+                saveUserHighScore(score);
+            }
+
+            gameOverScreen.classList.remove('hidden');
+            
+            if (activePowerUp) {
+                powerUps[activePowerUp].cleanup();
+                activePowerUp = null;
+            }
+            powerUpDisplay.textContent = 'NINGUNO';
+
+            canvas.style.borderColor = '#f4d03f';
+            canvas.style.boxShadow = '0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5)';
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.font = '10px "Press Start 2P", monospace';
+            ctx.textAlign = 'left';
+
+            for (let i = 0; i < fallingObjects.length; i++) {
+                fallingObjects[i].draw();
+            }
+
+            player.draw();
+
+            scoreDisplay.textContent = score;
+            highScoreDisplay.textContent = highScore;
+            powerUpDisplay.textContent = activePowerUp ? powerUps[activePowerUp].name : 'NINGUNO';
+
+            if (activePowerUp && Date.now() < powerUpEndTime) {
+                const elapsed = Date.now() - (powerUpEndTime - POWER_UP_DURATION);
+                const percentage = 1 - (elapsed / POWER_UP_DURATION);
+                const barWidth = CANVAS_WIDTH * percentage;
+
+                ctx.fillStyle = powerUps[activePowerUp].color;
+                ctx.fillRect(0, 0, barWidth, 5);
+            }
+        }
+
+        // === BUCLE PRINCIPAL DEL JUEGO ===
+
+        function gameLoop(currentTime) {
+            if (!isPlaying) return;
+
+            player.update();
+            spawnObject(currentTime);
+            checkPowerUpExpiry();
+
+            for (let i = fallingObjects.length - 1; i >= 0; i--) {
+                fallingObjects[i].update();
+                if (checkCollisions(fallingObjects[i], i)) {
+                    // La colisión/pérdida ya fue manejada
+                }
+            }
+
+            drawGame();
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // === EVENTOS DEL JUEGO ===
+
+        initialStartButton.addEventListener('click', initGame);
+        startButton.addEventListener('click', initGame);
+
+        document.addEventListener('keydown', (e) => {
+            // Permitir 'Enter' para iniciar/reiniciar si no está jugando y las pantallas de inicio/gameover son visibles
+            if (!isPlaying && (e.key === 'Enter' || e.key === ' ') && (startScreen.classList.contains('hidden') === false || gameOverScreen.classList.contains('hidden') === false)) {
+                initGame();
+                return;
+            }
+
+            if (isPlaying) {
+                keys[e.key] = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (isPlaying) {
+                keys[e.key] = false;
+            }
+        });
+        
+    </script>
+</body>
+</html>
