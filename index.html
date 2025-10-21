@@ -177,7 +177,10 @@
             <input type="email" id="emailInput" placeholder="EMAIL" class="retro-input mb-3" />
             <input type="password" id="passwordInput" placeholder="CONTRASEÑA" class="retro-input mb-4" />
             <button id="loginButton" class="retro-button w-full mb-2">INICIAR SESIÓN</button>
-            <button id="registerButton" class="retro-button bg-blue-500 border-blue-700 hover:bg-blue-700 w-full">REGISTRARSE</button>
+            <button id="registerButton" class="retro-button bg-blue-500 border-blue-700 hover:bg-blue-700 w-full mb-2">REGISTRARSE</button>
+            
+            <button id="anonymousLoginButton" class="retro-button bg-green-500 border-green-700 hover:bg-green-700 w-full">JUGAR COMO INVITADO</button>
+            
             <p id="authMessage" class="mt-3 text-sm text-red-400"></p>
         </div>
         
@@ -228,7 +231,6 @@
 
     <script type="module">
         // === CONFIGURACIÓN GLOBAL DE FIREBASE ===
-        // 🚨 IMPORTANTE: Esta es la configuración que proporcionaste. Asegúrate de que los servicios (Auth, Firestore) estén habilitados en tu consola de Firebase.
         const firebaseConfig = {
             apiKey: "AIzaSyDvAkI_aBIiezkbSEwgdmpduaGKtw4XLOs",
             authDomain: "controlceo-fdd05.firebaseapp.com",
@@ -241,7 +243,8 @@
 
         // === FIREBASE IMPORTS ===
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Añadido 'signInAnonymously' al import
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, collection, query, limit, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         // === INICIALIZACIÓN DE FIREBASE ===
         const app = initializeApp(firebaseConfig);
@@ -280,6 +283,7 @@
         const passwordInput = document.getElementById('passwordInput');
         const loginButton = document.getElementById('loginButton');
         const registerButton = document.getElementById('registerButton');
+        const anonymousLoginButton = document.getElementById('anonymousLoginButton'); // NUEVA REFERENCIA
         const logoutButton = document.getElementById('logoutButton');
         const authMessage = document.getElementById('authMessage');
         const loadingScreen = document.getElementById('loadingScreen');
@@ -460,6 +464,7 @@
                 setAuthMessage("Error de sesión: " + (error.message.includes('user-not-found') ? 'Usuario no encontrado' : 'Credenciales inválidas'), true);
             }
         });
+        
         registerButton.addEventListener('click', async () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -475,6 +480,20 @@
                 setAuthMessage("Error de registro: " + (error.message.includes('email-already-in-use') ? 'El email ya está registrado' : 'Error desconocido'), true);
             }
         });
+        
+        // MANEJADOR DE INICIO DE SESIÓN ANÓNIMO (NUEVO)
+        anonymousLoginButton.addEventListener('click', async () => {
+            setAuthMessage("Iniciando sesión como invitado...");
+            try {
+                // Llama a la función de inicio de sesión anónimo de Firebase
+                await signInAnonymously(auth); 
+                // onAuthStateChanged se encarga de cambiar de pantalla.
+            } catch (error) {
+                console.error(error);
+                setAuthMessage("Error al iniciar como invitado. Verifica que la autenticación anónima esté habilitada.", true);
+            }
+        });
+        
         saveProfileButton.addEventListener('click', async () => {
             const name = nameInput.value.trim();
             const lastName = lastNameInput.value.trim();
@@ -512,6 +531,7 @@
                 console.error("Error al cerrar sesión:", error);
             }
         });
+        
         // Listener de estado de autenticación (CRÍTICO)
         onAuthStateChanged(auth, (user) => {
             loadingScreen.classList.add('hidden');
@@ -524,7 +544,7 @@
                 // 1. Ocultar login
                 authScreen.classList.add('hidden');
                 
-                // 2. Verificar si el perfil está completo
+                // 2. Verificar si el perfil está completo (si tiene displayName)
                 if (loadUserName()) {
                     // Perfil completo, mostrar juego
                     profileScreen.classList.add('hidden');
@@ -534,7 +554,7 @@
                     loadUserHighScore();
                     setAuthMessage("");
                 } else {
-                    // Perfil incompleto, mostrar pantalla de perfil
+                    // Perfil incompleto (típico para nuevos registros o usuarios anónimos), mostrar pantalla de perfil
                     profileScreen.classList.remove('hidden');
                     gameScreens.classList.add('hidden');
                 }
@@ -548,7 +568,7 @@
                 userName = null;
                 highScore = 0;
                 updateHighScore(0);
-                setAuthMessage("Por favor, inicia sesión para guardar tu récord.", true);
+                setAuthMessage("Por favor, inicia sesión o juega como invitado para guardar tu récord.", true);
             }
         });
         // === CONFIGURACIÓN DE AUDIO (TONE.JS) ===
