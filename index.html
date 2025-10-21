@@ -14,123 +14,125 @@
             background-color: #1a1a2e; /* Fondo oscuro retro */
             color: #e5e5f7; /* Texto claro */
             display: flex;
-            justify-content: center; /* */
-            align-items: center; /* */
-            min-height: 100vh; /* */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
         /* Estilo para el lienzo del juego (Canvas) */
         #gameCanvas {
             border: 4px solid #f4d03f; /* Borde amarillo de arcade */
-            box-shadow: 0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5); /* */
+            box-shadow: 0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5);
             background-color: #2c3e50; /* Cielo azul oscuro pixeleado */
-            cursor: none; /* Ocultar cursor en la zona de juego */
+            cursor: none;
             image-rendering: pixelated; /* ¡Esencial para el look retro! */
-            width: 90vw; /* Ajuste responsive */
-            max-width: 600px; /* */
-            height: auto; /* */
-            aspect-ratio: 4 / 3; /* Relación de aspecto 4:3 para mejor visualización */
-            touch-action: none; /* Evita el desplazamiento predeterminado del navegador al deslizar */
+            /* INICIO DE CORRECCIÓN PARA MOVIL */
+            width: 100%; /* Ocupar el 100% del contenedor padre */
+            max-width: 400px; /* Límite máximo del juego (el ancho original del canvas) */
+            height: auto;
+            aspect-ratio: 4 / 3; /* Mantener la proporción */
+            touch-action: none;
+            /* FIN DE CORRECCIÓN PARA MOVIL */
         }
 
         /* Estilo para los botones */
         .retro-button {
-            background-color: #e74c3c; /* */
-            color: #fff; /* */
+            background-color: #e74c3c;
+            color: #fff;
             padding: 10px 20px;
             margin: 5px;
             border: 4px solid #c0392b;
             box-shadow: 0 5px 0 #922b21;
             transition: all 0.1s;
-            text-shadow: 1px 1px 0 #000; /* */
+            text-shadow: 1px 1px 0 #000;
         }
         .retro-button:hover {
-            background-color: #c0392b; /* */
-            box-shadow: 0 2px 0 #922b21; /* */
-            transform: translateY(3px); /* */
+            background-color: #c0392b;
+            box-shadow: 0 2px 0 #922b21;
+            transform: translateY(3px);
         }
         .retro-input {
-            background-color: #3b3b54; /* */
-            color: #e5e5f7; /* */
+            background-color: #3b3b54;
+            color: #e5e5f7;
             border: 2px solid #f4d03f;
             padding: 8px;
             width: 100%;
             max-width: 300px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); /* */
-            font-family: monospace; /* */
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            font-family: monospace;
         }
 
         /* Contenedor principal con efecto de pixelado y centrado */
         .game-container {
-            width: 100%; /* */
-            max-width: 650px; /* */
+            width: 100%; /* Aseguramos que el contenedor principal use todo el ancho de la pantalla */
+            max-width: 650px;
             padding: 10px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* */
+            align-items: center;
         }
 
         /* Estilo para el Leaderboard (Modal centrado) */
         #leaderboard {
-            position: fixed; /* Cambiado a fixed para ser modal */
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 350px;
-            background-color: rgba(0, 0, 0, 0.9); /* Semi-transparente y oscuro */
+            background-color: rgba(0, 0, 0, 0.9);
             color: #f4d03f;
-            border: 4px solid #f4d03f; /* */
+            border: 4px solid #f4d03f;
             padding: 20px;
-            font-size: 10px; /* */
-            max-height: 90vh; /* */
+            font-size: 10px;
+            max-height: 90vh;
             overflow-y: auto;
-            z-index: 50; /* Alto z-index para superponer */
+            z-index: 50;
         }
         
         /* Estilo para el Panel de Info (Modal centrado) */
         #infoPanel {
-            position: fixed; /* Cambiado a fixed para ser modal */
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 350px;
-            background-color: rgba(0, 0, 0, 0.9); /* Semi-transparente y oscuro */
-            color: #e5e5f7; /* */
-            border: 4px solid #e74c3c; /* */
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #e5e5f7;
+            border: 4px solid #e74c3c;
             padding: 20px;
-            font-size: 10px; /* */
-            max-height: 90vh; /* */
+            font-size: 10px;
+            max-height: 90vh;
             overflow-y: auto;
-            z-index: 50; /* Alto z-index para superponer */
+            z-index: 50;
         }
         
         /* Estilos de títulos y elementos internos */
         .leaderboard-title {
-            text-align: center; /* */
-            font-size: 14px; /* */
+            text-align: center;
+            font-size: 14px;
             margin-bottom: 5px;
             text-shadow: 1px 1px 0 #e74c3c;
-            color: #fff; /* */
+            color: #fff;
         }
         
         .info-title {
-            text-align: center; /* */
-            font-size: 14px; /* */
+            text-align: center;
+            font-size: 14px;
             margin-bottom: 5px;
             text-shadow: 1px 1px 0 #3498db;
-            color: #fff; /* */
+            color: #fff;
         }
 
         .leaderboard-item {
-            display: flex; /* */
-            justify-content: space-between; /* */
+            display: flex;
+            justify-content: space-between;
             border-bottom: 1px dotted #c0392b;
             padding: 3px 0;
         }
         .leaderboard-item:last-child {
-            border-bottom: none; /* */
+            border-bottom: none;
         }
     </style>
 </head>
@@ -194,7 +196,7 @@
         </div>
         
         <div id="gameScreens" class="hidden">
-            <div class="relative max-w-full" style="max-width: 400px; aspect-ratio: 4 / 3;">
+            <div class="relative w-full" style="max-width: 400px; aspect-ratio: 4 / 3;">
                 <canvas id="gameCanvas" width="400" height="300"></canvas>
             
                 <div id="gameOverScreen" class="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black bg-opacity-75 hidden">
@@ -226,7 +228,7 @@
 
     <script type="module">
         // === CONFIGURACIÓN GLOBAL DE FIREBASE ===
-        // ¡ESTA ES LA CONFIGURACIÓN REAL QUE NOS PROPORCIONASTE!
+        // 🚨 IMPORTANTE: Esta es la configuración que proporcionaste. Asegúrate de que los servicios (Auth, Firestore) estén habilitados en tu consola de Firebase.
         const firebaseConfig = {
             apiKey: "AIzaSyDvAkI_aBIiezkbSEwgdmpduaGKtw4XLOs",
             authDomain: "controlceo-fdd05.firebaseapp.com",
@@ -235,7 +237,7 @@
             messagingSenderId: "207151362101",
             appId: "1:207151362101:web:3ba86ac5680fd41e55417c"
         };
-        const appId = firebaseConfig.projectId; // Usamos el projectId como appId de la lógica interna
+        const appId = firebaseConfig.projectId;
 
         // === FIREBASE IMPORTS ===
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -353,7 +355,6 @@
                 updateHighScore(highScore);
             } catch (error) {
                 console.error("Error al cargar el High Score:", error);
-                // No bloquear el juego por esto
             }
         }
         
@@ -469,7 +470,6 @@
             setAuthMessage("Registrando usuario...");
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
-                // No necesitamos setAuthMessage aquí, el onAuthStateChanged se encargará de mostrar la pantalla de perfil.
             } catch (error) {
                 console.error(error);
                 setAuthMessage("Error de registro: " + (error.message.includes('email-already-in-use') ? 'El email ya está registrado' : 'Error desconocido'), true);
@@ -981,8 +981,7 @@
             }
         });
         canvas.addEventListener('touchend', () => {
-            // Si quieres que el carrito se detenga al levantar el dedo, descomenta la siguiente línea:
-            // touchX = null;
+            // touchX = null; // Descomentar si quieres que el carrito se detenga al levantar el dedo
         });
         
         // === EVENTOS DE UTILIDAD (Guía y Leaderboard) ===
