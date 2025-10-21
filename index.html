@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Donut Frenzy</title>
-    <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carga de la librería Tone.js para generar sonidos retro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-    <!-- Carga de la fuente Inter, aunque usaremos un fallback retro para el juego -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Estilo general para el ambiente retro */
@@ -17,124 +14,128 @@
             background-color: #1a1a2e; /* Fondo oscuro retro */
             color: #e5e5f7; /* Texto claro */
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            justify-content: center; /* */
+            align-items: center; /* */
+            min-height: 100vh; /* */
         }
 
         /* Estilo para el lienzo del juego (Canvas) */
         #gameCanvas {
             border: 4px solid #f4d03f; /* Borde amarillo de arcade */
-            box-shadow: 0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5); /* */
             background-color: #2c3e50; /* Cielo azul oscuro pixeleado */
             cursor: none; /* Ocultar cursor en la zona de juego */
             image-rendering: pixelated; /* ¡Esencial para el look retro! */
             width: 90vw; /* Ajuste responsive */
-            max-width: 600px;
-            height: auto;
+            max-width: 600px; /* */
+            height: auto; /* */
             aspect-ratio: 4 / 3; /* Relación de aspecto 4:3 para mejor visualización */
             touch-action: none; /* Evita el desplazamiento predeterminado del navegador al deslizar */
         }
 
         /* Estilo para los botones */
         .retro-button {
-            background-color: #e74c3c;
-            color: #fff;
+            background-color: #e74c3c; /* */
+            color: #fff; /* */
             padding: 10px 20px;
             margin: 5px;
             border: 4px solid #c0392b;
             box-shadow: 0 5px 0 #922b21;
             transition: all 0.1s;
-            text-shadow: 1px 1px 0 #000;
+            text-shadow: 1px 1px 0 #000; /* */
         }
         .retro-button:hover {
-            background-color: #c0392b;
-            box-shadow: 0 2px 0 #922b21;
-            transform: translateY(3px);
+            background-color: #c0392b; /* */
+            box-shadow: 0 2px 0 #922b21; /* */
+            transform: translateY(3px); /* */
         }
         .retro-input {
-            background-color: #3b3b54;
-            color: #e5e5f7;
+            background-color: #3b3b54; /* */
+            color: #e5e5f7; /* */
             border: 2px solid #f4d03f;
             padding: 8px;
             width: 100%;
             max-width: 300px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-            font-family: monospace;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); /* */
+            font-family: monospace; /* */
         }
 
         /* Contenedor principal con efecto de pixelado y centrado */
         .game-container {
-            width: 100%;
-            max-width: 650px;
+            width: 100%; /* */
+            max-width: 650px; /* */
             padding: 10px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* */
         }
 
-        /* Estilo para el Leaderboard (transparente y fijo en la esquina) */
+        /* Estilo para el Leaderboard (Modal centrado) */
         #leaderboard {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 250px;
-            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparente */
+            position: fixed; /* Cambiado a fixed para ser modal */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 350px;
+            background-color: rgba(0, 0, 0, 0.9); /* Semi-transparente y oscuro */
             color: #f4d03f;
-            border: 2px solid #f4d03f;
-            padding: 10px;
-            font-size: 10px;
-            max-height: 90vh;
+            border: 4px solid #f4d03f; /* */
+            padding: 20px;
+            font-size: 10px; /* */
+            max-height: 90vh; /* */
             overflow-y: auto;
-            z-index: 10;
+            z-index: 50; /* Alto z-index para superponer */
         }
         
-        /* Estilo para el Panel de Info */
+        /* Estilo para el Panel de Info (Modal centrado) */
         #infoPanel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 250px;
-            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparente */
-            color: #e5e5f7;
-            border: 2px solid #e74c3c;
-            padding: 10px;
-            font-size: 10px;
-            max-height: 90vh;
+            position: fixed; /* Cambiado a fixed para ser modal */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 350px;
+            background-color: rgba(0, 0, 0, 0.9); /* Semi-transparente y oscuro */
+            color: #e5e5f7; /* */
+            border: 4px solid #e74c3c; /* */
+            padding: 20px;
+            font-size: 10px; /* */
+            max-height: 90vh; /* */
             overflow-y: auto;
-            z-index: 10;
+            z-index: 50; /* Alto z-index para superponer */
         }
-
+        
+        /* Estilos de títulos y elementos internos */
         .leaderboard-title {
-            text-align: center;
-            font-size: 14px;
+            text-align: center; /* */
+            font-size: 14px; /* */
             margin-bottom: 5px;
             text-shadow: 1px 1px 0 #e74c3c;
-            color: #fff;
+            color: #fff; /* */
         }
         
         .info-title {
-            text-align: center;
-            font-size: 14px;
+            text-align: center; /* */
+            font-size: 14px; /* */
             margin-bottom: 5px;
             text-shadow: 1px 1px 0 #3498db;
-            color: #fff;
+            color: #fff; /* */
         }
 
         .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
+            display: flex; /* */
+            justify-content: space-between; /* */
             border-bottom: 1px dotted #c0392b;
             padding: 3px 0;
         }
         .leaderboard-item:last-child {
-            border-bottom: none;
+            border-bottom: none; /* */
         }
     </style>
 </head>
 <body class="p-4">
     
-    <!-- PANEL DE INFORMACIÓN (Power-Ups y Peligros) -->
     <div id="infoPanel" class="hidden">
         <h3 class="info-title">GUÍA RÁPIDA</h3>
         <div class="mb-3">
@@ -154,23 +155,21 @@
                 <div class="flex items-center mb-1">🍩 Dona Perdida: GAME OVER.</div>
             </div>
         </div>
+        <button id="closeInfoButton" class="retro-button bg-gray-600 border-gray-700 hover:bg-gray-700 text-xs mt-4 w-full">CERRAR</button>
     </div>
     
-    <!-- LEADERBOARD (Tabla de Máximos Puntajes) -->
     <div id="leaderboard" class="hidden">
-        <h3 class="leaderboard-title">TOP 10 Récords</h3>
+        <h3 class="leaderboard-title">TOP Récords</h3>
         <div id="leaderboardContent">
-            <!-- Items de la clasificación se cargarán aquí -->
             <p class="text-center text-xs">Cargando...</p>
         </div>
+        <button id="closeLeaderboardButton" class="retro-button bg-gray-600 border-gray-700 hover:bg-gray-700 text-xs mt-4 w-full">CERRAR</button>
     </div>
 
 
     <div class="game-container text-center">
-        <!-- Título del Juego -->
         <h1 class="text-3xl mb-4 text-yellow-300 shadow-lg" style="text-shadow: 4px 4px #e74c3c;">PIXEL DONUT FRENZY</h1>
         
-        <!-- PANTALLA DE AUTENTICACIÓN -->
         <div id="authScreen" class="p-6 bg-gray-800 border-4 border-yellow-500 rounded-lg max-w-sm mx-auto">
             <h2 class="text-2xl mb-4 text-pink-400">ACCESO</h2>
             <input type="email" id="emailInput" placeholder="EMAIL" class="retro-input mb-3" />
@@ -180,7 +179,6 @@
             <p id="authMessage" class="mt-3 text-sm text-red-400"></p>
         </div>
         
-        <!-- PANTALLA DE REGISTRO DE NOMBRE/APELLIDO -->
         <div id="profileScreen" class="hidden p-6 bg-gray-800 border-4 border-yellow-500 rounded-lg max-w-sm mx-auto">
             <h2 class="text-2xl mb-4 text-pink-400">COMPLETA TU PERFIL</h2>
             <p class="mb-4 text-sm">Ingresa tu nombre y apellido para el Leaderboard.</p>
@@ -190,61 +188,59 @@
             <p id="profileMessage" class="mt-3 text-sm text-red-400"></p>
         </div>
 
-        <!-- PANTALLA DE CARGA (OCULTA INICIALMENTE) -->
         <div id="loadingScreen" class="hidden mt-4">
             <h2 class="text-2xl text-yellow-400">CARGANDO...</h2>
             <p class="mt-2 text-sm">Preparando la máquina arcade.</p>
         </div>
         
-        <!-- PANTALLA DE JUEGO (OCULTA INICIALMENTE) -->
         <div id="gameScreens" class="hidden">
-            <!-- Área de Juego -->
-            <canvas id="gameCanvas" width="400" height="300"></canvas>
+            <div class="relative max-w-full" style="max-width: 400px; aspect-ratio: 4 / 3;">
+                <canvas id="gameCanvas" width="400" height="300"></canvas>
             
-            <!-- Panel de Información -->
-            <div id="statsPanel" class="mt-4 p-3 bg-gray-800 border-4 border-yellow-500 rounded-lg text-sm grid grid-cols-2 gap-2" style="font-family: monospace;">
+                <div id="gameOverScreen" class="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black bg-opacity-75 hidden">
+                    <h2 class="text-4xl text-red-500 mb-4" style="text-shadow: 2px 2px #000;">GAME OVER</h2>
+                    <button id="startButton" class="retro-button text-lg">REINTENTAR</button>
+                </div>
+            
+                <div id="startScreen" class="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black bg-opacity-75 hidden">
+                    <p class="text-lg mb-4">Usa &larr; y &rarr; (o desliza el dedo) para moverte.</p>
+                    <p class="text-lg mb-4 text-red-400">¡Esquiva bombas y piedras!</p>
+                    <button id="initialStartButton" class="retro-button text-xl">EMPEZAR</button>
+                </div>
+            </div>
+            
+            <div id="statsPanel" class="mt-4 p-3 bg-gray-800 border-4 border-yellow-500 rounded-lg text-sm grid grid-cols-2 gap-2 w-full" style="font-family: monospace; max-width: 400px;">
                 <div class="text-left">USUARIO: <span id="userDisplay" class="text-green-400">...</span></div>
                 <div class="text-right">PUNTOS: <span id="scoreDisplay" class="text-green-400">0</span></div>
                 <div class="col-span-2 text-center text-yellow-400">RÉCORD: <span id="highScoreDisplay" class="text-pink-400">0</span></div>
                 <div class="col-span-2 text-center text-yellow-400">POWER-UP ACTIVO: <span id="powerUpDisplay" class="font-bold">NINGUNO</span></div>
             </div>
 
-            <!-- Botón de Reinicio (oculto al inicio) -->
-            <div id="gameOverScreen" class="hidden mt-4">
-                <h2 class="text-4xl text-red-500 mb-4" style="text-shadow: 2px 2px #000;">GAME OVER</h2>
-                <button id="startButton" class="retro-button text-lg">REINTENTAR</button>
-            </div>
-            
-            <!-- Botón de Inicio (visible al inicio) -->
-            <div id="startScreen" class="hidden mt-4">
-                <p class="text-lg mb-4">Usa &larr; y &rarr; (o desliza el dedo) para moverte.</p>
-                <p class="text-lg mb-4 text-red-400">¡Esquiva bombas y piedras!</p>
-                <button id="initialStartButton" class="retro-button text-xl">EMPEZAR</button>
-                <button id="logoutButton" class="retro-button bg-gray-600 border-gray-700 hover:bg-gray-700 text-sm block mx-auto mt-4">CERRAR SESIÓN</button>
+            <div class="mt-4 flex justify-center space-x-4 w-full" style="max-width: 400px;">
+                <button id="showInfoButton" class="retro-button bg-blue-500 border-blue-700 hover:bg-blue-700 text-sm">GUÍA</button>
+                <button id="showLeaderboardButton" class="retro-button bg-purple-500 border-purple-700 hover:bg-purple-700 text-sm">RÉCORDS</button>
+                <button id="logoutButton" class="retro-button bg-gray-600 border-gray-700 hover:bg-gray-700 text-sm">CERRAR SESIÓN</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         // === CONFIGURACIÓN GLOBAL DE FIREBASE ===
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : {
-                // Configuración de prueba si no se proporciona
-                apiKey: "AIzaSyDvAkI_aBIiezkbSEwgdmpduaGKtw4XLOs",
-                authDomain: "controlceo-fdd05.firebaseapp.com",
-                projectId: "controlceo-fdd05",
-                storageBucket: "controlceo-fdd05.firebasestorage.app",
-                messagingSenderId: "207151362101",
-                appId: "1:207151362101:web:3ba86ac5680fd41e55417c"
-            };
+        // ¡ESTA ES LA CONFIGURACIÓN REAL QUE NOS PROPORCIONASTE!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvAkI_aBIiezkbSEwgdmpduaGKtw4XLOs",
+            authDomain: "controlceo-fdd05.firebaseapp.com",
+            projectId: "controlceo-fdd05",
+            storageBucket: "controlceo-fdd05.firebasestorage.app",
+            messagingSenderId: "207151362101",
+            appId: "1:207151362101:web:3ba86ac5680fd41e55417c"
+        };
+        const appId = firebaseConfig.projectId; // Usamos el projectId como appId de la lógica interna
 
         // === FIREBASE IMPORTS ===
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, collection, query, limit, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
         // === INICIALIZACIÓN DE FIREBASE ===
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -254,8 +250,6 @@
         const getUserDocRef = (userId) => doc(db, `artifacts/${appId}/users/${userId}/data`, "game_stats");
         // Colección pública para el Leaderboard
         const LEADERBOARD_COLLECTION = `artifacts/${appId}/public/data/leaderboard`;
-
-
         // === CONFIGURACIÓN DEL JUEGO ===
         const CANVAS_WIDTH = 400;
         const CANVAS_HEIGHT = 300;
@@ -263,8 +257,8 @@
         const BASE_SPEED = 1.5;
         const SPAWN_INTERVAL_MS = 1000;
         const OBJECT_SIZE = 25;
-        const PLAYER_INITIAL_LIVES = 1; // Base life
-        const SHIELD_LIVES = 2; // Lives when shield is active
+        const PLAYER_INITIAL_LIVES = 1;
+        const SHIELD_LIVES = 2;
 
         // Elementos del DOM
         const canvas = document.getElementById('gameCanvas');
@@ -278,7 +272,6 @@
         const initialStartButton = document.getElementById('initialStartButton');
         const gameScreens = document.getElementById('gameScreens');
         const userDisplay = document.getElementById('userDisplay');
-        
         // Elementos de autenticación y perfil
         const authScreen = document.getElementById('authScreen');
         const emailInput = document.getElementById('emailInput');
@@ -299,6 +292,12 @@
         const leaderboard = document.getElementById('leaderboard');
         const leaderboardContent = document.getElementById('leaderboardContent');
         const infoPanel = document.getElementById('infoPanel');
+        
+        // Nuevos botones de la interfaz
+        const showInfoButton = document.getElementById('showInfoButton');
+        const showLeaderboardButton = document.getElementById('showLeaderboardButton');
+        const closeInfoButton = document.getElementById('closeInfoButton');
+        const closeLeaderboardButton = document.getElementById('closeLeaderboardButton');
 
 
         // Configuración inicial del Canvas
@@ -316,7 +315,7 @@
         let lastSpawnTime = 0;
         let animationFrameId;
         let userId = null; 
-        let userName = null; // Nombre completo del usuario
+        let userName = null;
 
         // Power-Up State
         let activePowerUp = null;
@@ -324,9 +323,8 @@
         const POWER_UP_DURATION = 5000;
 
         // Estado para el control táctil
-        let touchX = null; 
-
-
+        let touchX = null;
+        
         // === LÓGICA DE AUTENTICACIÓN Y DATOS ===
 
         function setAuthMessage(message, isError = false) {
@@ -341,7 +339,6 @@
 
         async function loadUserHighScore() {
             if (!userId) return;
-
             try {
                 const docRef = getUserDocRef(userId);
                 const docSnap = await getDoc(docRef);
@@ -353,7 +350,7 @@
                     await setDoc(docRef, { highScore: 0 });
                     highScore = 0;
                 }
-                updateHighScore(highScore); // Refresca el display
+                updateHighScore(highScore);
             } catch (error) {
                 console.error("Error al cargar el High Score:", error);
                 // No bloquear el juego por esto
@@ -377,18 +374,16 @@
             if (user && user.displayName) {
                 userName = user.displayName;
                 userDisplay.textContent = userName;
-                return true; // Perfil completo
+                return true;
             }
-            return false; // Perfil incompleto
+            return false;
         }
         
         // Nueva función para guardar el high score y el perfil en la colección pública
         async function savePublicRecord(score) {
             if (!userId || !userName || score <= 0) return;
-
             try {
                 const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
-                
                 // Cargar el récord actual en la tabla pública para evitar guardar uno inferior
                 const docSnap = await getDoc(docRef);
                 const currentPublicScore = docSnap.exists() ? docSnap.data().score : 0;
@@ -409,35 +404,41 @@
         
         // Listener de la colección pública para el Leaderboard (en tiempo real)
         const q = query(collection(db, LEADERBOARD_COLLECTION), orderBy("score", "desc"));
-
         onSnapshot(q, (snapshot) => {
             const records = [];
             snapshot.forEach((doc) => {
                 records.push(doc.data());
             });
-            renderLeaderboard(records.slice(0, 10)); // Mostrar solo los 10 mejores
+            renderLeaderboard(records); 
         }, (error) => {
             console.error("Error al escuchar el Leaderboard:", error);
             leaderboardContent.innerHTML = '<p class="text-center text-xs text-red-400">Error al cargar la clasificación.</p>';
         });
-
+        
         function renderLeaderboard(records) {
             leaderboardContent.innerHTML = '';
+
+            if (records.length === 0) {
+                 leaderboardContent.innerHTML = '<p class="text-center text-xs">Sé el primero en el Leaderboard!</p>';
+                 return;
+            }
+            
             records.forEach((record, index) => {
+                const isCurrentUser = record.userId === userId;
                 const item = document.createElement('div');
                 item.className = 'leaderboard-item';
                 
                 const name = record.userName.length > 15 ? record.userName.substring(0, 14) + '...' : record.userName;
 
+                // Aplicar estilo de resaltado si es el usuario actual
+                const nameClass = isCurrentUser ? 'text-pink-400 font-bold' : '';
+
                 item.innerHTML = `
-                    <span>${index + 1}. ${name}</span>
-                    <span class="${record.userId === userId ? 'text-pink-400 font-bold' : ''}">${record.score}</span>
+                    <span class="${nameClass}">${index + 1}. ${name}</span>
+                    <span class="${nameClass}">${record.score}</span>
                 `;
                 leaderboardContent.appendChild(item);
             });
-            if (records.length === 0) {
-                 leaderboardContent.innerHTML = '<p class="text-center text-xs">Sé el primero en el Leaderboard!</p>';
-            }
         }
 
 
@@ -452,13 +453,12 @@
             setAuthMessage("Iniciando sesión...");
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                setAuthMessage(""); // Limpiar mensaje al éxito
+                setAuthMessage("");
             } catch (error) {
                 console.error(error);
                 setAuthMessage("Error de sesión: " + (error.message.includes('user-not-found') ? 'Usuario no encontrado' : 'Credenciales inválidas'), true);
             }
         });
-
         registerButton.addEventListener('click', async () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -475,7 +475,6 @@
                 setAuthMessage("Error de registro: " + (error.message.includes('email-already-in-use') ? 'El email ya está registrado' : 'Error desconocido'), true);
             }
         });
-
         saveProfileButton.addEventListener('click', async () => {
             const name = nameInput.value.trim();
             const lastName = lastNameInput.value.trim();
@@ -489,7 +488,9 @@
                 const user = auth.currentUser;
                 const displayName = `${name} ${lastName}`;
                 
-                await updateProfile(user, { displayName: displayName });
+                await updateProfile(user, { 
+                    displayName: displayName 
+                });
                 
                 // Actualizar el estado del juego y la UI
                 userName = displayName;
@@ -498,15 +499,12 @@
                 profileScreen.classList.add('hidden');
                 gameScreens.classList.remove('hidden');
                 startScreen.classList.remove('hidden');
-                infoPanel.classList.remove('hidden');
-                leaderboard.classList.remove('hidden');
-
+                
             } catch (error) {
                 console.error("Error al guardar perfil:", error);
                 setProfileMessage("Error al guardar perfil. Intenta de nuevo.", true);
             }
         });
-
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
@@ -514,7 +512,6 @@
                 console.error("Error al cerrar sesión:", error);
             }
         });
-
         // Listener de estado de autenticación (CRÍTICO)
         onAuthStateChanged(auth, (user) => {
             loadingScreen.classList.add('hidden');
@@ -533,10 +530,8 @@
                     profileScreen.classList.add('hidden');
                     gameScreens.classList.remove('hidden');
                     startScreen.classList.remove('hidden');
-                    infoPanel.classList.remove('hidden');
-                    leaderboard.classList.remove('hidden');
                     
-                    loadUserHighScore(); 
+                    loadUserHighScore();
                     setAuthMessage("");
                 } else {
                     // Perfil incompleto, mostrar pantalla de perfil
@@ -556,8 +551,6 @@
                 setAuthMessage("Por favor, inicia sesión para guardar tu récord.", true);
             }
         });
-
-
         // === CONFIGURACIÓN DE AUDIO (TONE.JS) ===
         const synth = new Tone.PolySynth(Tone.Synth, {
             oscillator: { type: "square" },
@@ -585,6 +578,11 @@
         function playShieldBlockSound() {
             synth.triggerAttackRelease(["D3", "A3"], "8n", Tone.now(), 0.8);
         }
+        
+        function playGameOverSound() {
+            synth.triggerAttackRelease(["C3", "G#2", "F2"], "2n");
+            noise.triggerAttackRelease("2n", Tone.now(), 1.0);
+        }
 
         // === IMPLEMENTACIÓN DE POWER-UPS ===
         const powerUps = {
@@ -600,8 +598,8 @@
                 color: '#2ecc71',
                 name: 'ESCUDO',
                 // El efecto ahora solo establece las vidas, la lógica está en handleHit
-                effect: () => { player.lives = SHIELD_LIVES; }, 
-                cleanup: () => { player.lives = PLAYER_INITIAL_LIVES; } 
+                effect: () => { player.lives = SHIELD_LIVES; },
+                cleanup: () => { player.lives = PLAYER_INITIAL_LIVES; }
             },
             'slow': {
                 symbol: '🐌',
@@ -611,15 +609,12 @@
                 cleanup: () => {}
             }
         };
-        
         // Mapeo de Emojis para los objetos que caen
         const objectSymbols = {
             'donut': '🍩',
             'bomb': '💣',
             'stone': '🧱',
         };
-
-
         // === CLASES DE ENTIDADES ===
 
         class Player {
@@ -629,7 +624,7 @@
                 this.width = size;
                 this.height = size;
                 this.speed = 4;
-                this.lives = PLAYER_INITIAL_LIVES; // Inicializado a 1
+                this.lives = PLAYER_INITIAL_LIVES;
             }
 
             draw() {
@@ -638,7 +633,6 @@
                 const emoji = '🛒';
 
                 ctx.fillText(emoji, this.x + this.width / 2, this.y + this.height * 0.9);
-
                 // Dibujar el efecto del escudo si las vidas son mayores a 1 (lo que indica que el escudo está activo)
                 if (this.lives > PLAYER_INITIAL_LIVES) {
                     ctx.fillStyle = 'rgba(46, 204, 113, 0.4)';
@@ -663,7 +657,6 @@
                     // Mover al jugador directamente a la posición X del toque (o cerca)
                     const targetX = touchX - this.width / 2;
                     const dx = targetX - this.x;
-                    
                     // Suavizar el movimiento (opcional, pero se ve mejor)
                     if (Math.abs(dx) > this.speed) {
                         this.x += Math.sign(dx) * this.speed;
@@ -708,13 +701,11 @@
 
             update() {
                 let currentSpeed = this.speed;
-
                 if (activePowerUp === 'slow' && Date.now() < powerUpEndTime) {
                     currentSpeed *= 0.4;
                 }
 
                 this.y += currentSpeed;
-
                 if (activePowerUp === 'vacuum' && Date.now() < powerUpEndTime && this.type === 'donut') {
                     const playerCenterX = player.x + player.width / 2;
                     const objectCenterX = this.x + this.width / 2;
@@ -739,20 +730,19 @@
             }
 
             score = 0;
-            updateHighScore(highScore); 
+            updateHighScore(highScore);
             isPlaying = true;
             player = new Player(CANVAS_WIDTH / 2 - PLAYER_SIZE / 2, CANVAS_HEIGHT - PLAYER_SIZE - 10, PLAYER_SIZE);
             fallingObjects = [];
             lastSpawnTime = 0;
             activePowerUp = null;
             powerUpEndTime = 0;
-            player.lives = PLAYER_INITIAL_LIVES; // 1 vida al inicio
-            touchX = null; // Reiniciar estado táctil
+            player.lives = PLAYER_INITIAL_LIVES;
+            touchX = null;
 
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
             document.getElementById('statsPanel').classList.remove('hidden');
-
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
             }
@@ -770,10 +760,8 @@
             const timeElapsed = currentTime - lastSpawnTime;
             const difficultyMultiplier = 1 + Math.floor(score / 150) * 0.1;
             const spawnInterval = SPAWN_INTERVAL_MS / difficultyMultiplier;
-
             if (timeElapsed > spawnInterval) {
                 lastSpawnTime = currentTime;
-
                 const x = Math.random() * (CANVAS_WIDTH - OBJECT_SIZE);
                 const speed = BASE_SPEED * difficultyMultiplier;
 
@@ -812,7 +800,7 @@
                 // Si es una dona y se pierde
                 if (object.type === 'donut') {
                     // El escudo NO protege de perder donas
-                    playHitSound(); 
+                    playHitSound();
                     gameOver();
                     return true;
                 }
@@ -827,26 +815,24 @@
 
         function handleHit(object, index) {
             fallingObjects.splice(index, 1);
-
             if (object.type === 'donut') {
                 score += 10;
-                updateHighScore(score); 
+                updateHighScore(score);
                 playCollectSound();
             } else if (object.type === 'bomb' || object.type === 'stone') {
                 
                 // Lógica de protección del escudo
                 if (activePowerUp === 'shield' && player.lives > PLAYER_INITIAL_LIVES) {
-                    player.lives = PLAYER_INITIAL_LIVES; // Restaura a la vida base (quita 1 vida)
+                    player.lives = PLAYER_INITIAL_LIVES;
                     
                     // Quitar el power-up si era la última "vida" extra
                     powerUps[activePowerUp].cleanup();
                     activePowerUp = null;
-                    powerUpEndTime = 0; 
+                    powerUpEndTime = 0;
                     
                     playShieldBlockSound();
                     canvas.style.borderColor = '#3498db';
                     setTimeout(() => canvas.style.borderColor = '#f4d03f', 200);
-
                 } else {
                     // Muerte instantánea o sin escudo
                     playHitSound();
@@ -864,10 +850,8 @@
 
             activePowerUp = type;
             powerUpEndTime = Date.now() + POWER_UP_DURATION;
-            
             // Aplicar el efecto del power-up
             powerUps[activePowerUp].effect();
-            
             powerUpDisplay.textContent = powerUps[activePowerUp].name;
             canvas.style.boxShadow = `0 0 30px 10px ${powerUps[activePowerUp].color}, inset 0 0 15px rgba(255, 255, 255, 0.7)`;
             playPowerUpSound();
@@ -886,22 +870,23 @@
             isPlaying = false;
             cancelAnimationFrame(animationFrameId);
 
+            // Tocar el sonido de Game Over
+            playGameOverSound();
+
             // Guardar el récord personal y en la tabla pública
             if (score > highScore) {
-                saveUserHighScore(score); // Récord privado
+                saveUserHighScore(score);
             }
             if (score > 0 && userName) {
-                savePublicRecord(score); // Récord público
+                savePublicRecord(score);
             }
 
             gameOverScreen.classList.remove('hidden');
-            
             if (activePowerUp) {
                 powerUps[activePowerUp].cleanup();
                 activePowerUp = null;
             }
             powerUpDisplay.textContent = 'NINGUNO';
-
             canvas.style.borderColor = '#f4d03f';
             canvas.style.boxShadow = '0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5)';
         }
@@ -913,7 +898,6 @@
 
             ctx.font = '10px "Press Start 2P", monospace';
             ctx.textAlign = 'left';
-
             for (let i = 0; i < fallingObjects.length; i++) {
                 fallingObjects[i].draw();
             }
@@ -938,7 +922,6 @@
 
         function gameLoop(currentTime) {
             if (!isPlaying) return;
-
             player.update();
             spawnObject(currentTime);
             checkPowerUpExpiry();
@@ -951,7 +934,6 @@
             }
 
             drawGame();
-
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
@@ -972,13 +954,11 @@
                 keys[e.key] = true;
             }
         });
-
         document.addEventListener('keyup', (e) => {
             if (isPlaying) {
                 keys[e.key] = false;
             }
         });
-        
         // --- Control Táctil ---
         
         // Función auxiliar para obtener la posición X relativa al canvas
@@ -986,7 +966,7 @@
             const rect = canvas.getBoundingClientRect();
             // Mapear la coordenada X del toque (en la pantalla) al tamaño interno del canvas (400px)
             const x = e.touches[0].clientX - rect.left;
-            return (x / rect.width) * CANVAS_WIDTH; 
+            return (x / rect.width) * CANVAS_WIDTH;
         }
 
         canvas.addEventListener('touchstart', (e) => {
@@ -994,21 +974,41 @@
                 touchX = getTouchX(e);
             }
         });
-
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault(); // Evitar el desplazamiento de la página
             if (isPlaying) {
                 touchX = getTouchX(e);
             }
         });
-
         canvas.addEventListener('touchend', () => {
-            // touchX se mantiene hasta el siguiente toque o se deja para que el jugador se mueva solo por teclado
-            // Como el juego se controla por posición absoluta, no es necesario limpiarlo aquí.
             // Si quieres que el carrito se detenga al levantar el dedo, descomenta la siguiente línea:
-            // touchX = null; 
+            // touchX = null;
         });
         
+        // === EVENTOS DE UTILIDAD (Guía y Leaderboard) ===
+        
+        showInfoButton.addEventListener('click', () => {
+             // Alternar la visibilidad de la Guía
+             infoPanel.classList.toggle('hidden');
+             // Asegurarse de que el otro esté oculto si estaba abierto
+             leaderboard.classList.add('hidden');
+        });
+        
+        closeInfoButton.addEventListener('click', () => {
+             infoPanel.classList.add('hidden');
+        });
+
+        showLeaderboardButton.addEventListener('click', () => {
+             // Alternar la visibilidad del Leaderboard
+             leaderboard.classList.toggle('hidden');
+             // Asegurarse de que el otro esté oculto si estaba abierto
+             infoPanel.classList.add('hidden');
+        });
+        
+        closeLeaderboardButton.addEventListener('click', () => {
+             leaderboard.classList.add('hidden');
+        });
+
     </script>
 </body>
 </html>
