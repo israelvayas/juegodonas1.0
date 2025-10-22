@@ -195,8 +195,7 @@
             <div id="statsPanel" class="mt-4 p-3 bg-gray-800 border-4 border-yellow-500 rounded-lg text-sm grid grid-cols-2 gap-2 w-full" style="font-family: 'Press Start 2P', monospace; max-width: 400px;">
                 <div class="text-left">USUARIO: <span id="userDisplay" class="text-green-400">...</span></div>
                 <div class="text-right">NIVEL: <span id="levelDisplay" class="text-pink-400">1</span></div>
-                <div class="col-span-2 text-center text-yellow-400">RÉCORD: <span id="highScoreDisplay" class="text-pink-400">0</span></div>
-                <div class="col-span-2 text-center text-yellow-400">POWER-UP ACTIVO: <span id="powerUpDisplay" class="font-bold">NINGUNO</span></div>
+                <div class="col-span-2 text-center text-yellow-400">MI RÉCORD: <span id="highScoreDisplay" class="text-pink-400">0</span></div>
             </div>
 
             <div class="mt-4 flex justify-center space-x-4 w-full" style="max-width: 400px;">
@@ -256,7 +255,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const highScoreDisplay = document.getElementById('highScoreDisplay');
-        const powerUpDisplay = document.getElementById('powerUpDisplay'); 
+        // const powerUpDisplay = document.getElementById('powerUpDisplay'); // Eliminado del HTML, pero la referencia se mantiene en el código JS por si acaso se desea reutilizar su lógica interna.
         const inGamePowerUpDisplay = document.getElementById('inGamePowerUpDisplay');
         const startScreen = document.getElementById('startScreen');
         const gameOverScreen = document.getElementById('gameOverScreen');
@@ -821,7 +820,7 @@
             
             // Limpiar Power-Up Display
             inGamePowerUpDisplay.textContent = ''; 
-            powerUpDisplay.textContent = 'NINGUNO';
+            // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
             
             // Actualizar display de vidas y multiplicador
             updateLivesDisplay();
@@ -867,7 +866,7 @@
             if (activePowerUp) {
                 powerUps[activePowerUp].cleanup();
                 activePowerUp = null;
-                powerUpDisplay.textContent = 'NINGUNO';
+                // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
                 inGamePowerUpDisplay.textContent = ''; 
             }
             scoreMultiplier = 1; 
@@ -1005,7 +1004,7 @@
                         if (activePowerUp === 'shield') {
                             powerUps['shield'].cleanup(); 
                             activePowerUp = null;
-                            powerUpDisplay.textContent = 'NINGUNO';
+                            // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
                             inGamePowerUpDisplay.textContent = ''; 
                         }
                     }
@@ -1060,7 +1059,7 @@
                     canvas.style.borderColor = '#3498db';
                     setTimeout(() => canvas.style.borderColor = '#f4d03f', 200);
                     
-                    powerUpDisplay.textContent = 'NINGUNO'; 
+                    // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
                     inGamePowerUpDisplay.textContent = ''; 
                     updateLivesDisplay(); 
                 } else {
@@ -1093,7 +1092,7 @@
             powerUps[activePowerUp].effect();
             
             const puName = powerUps[activePowerUp].name;
-            powerUpDisplay.textContent = puName; 
+            // powerUpDisplay.textContent = puName; // Eliminado
             inGamePowerUpDisplay.textContent = puName; 
 
             canvas.style.boxShadow = `0 0 30px 10px ${powerUps[activePowerUp].color}, inset 0 0 15px rgba(255, 255, 255, 0.7)`;
@@ -1109,7 +1108,7 @@
                 activePowerUp = null;
                 
                 // LIMPIAR DISPLAY
-                powerUpDisplay.textContent = 'NINGUNO';
+                // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
                 inGamePowerUpDisplay.textContent = '';
 
                 canvas.style.boxShadow = '0 0 20px rgba(244, 208, 63, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5)';
@@ -1142,7 +1141,7 @@
             }
             
             // LIMPIAR DISPLAY
-            powerUpDisplay.textContent = 'NINGUNO';
+            // powerUpDisplay.textContent = 'NINGUNO'; // Eliminado
             inGamePowerUpDisplay.textContent = '';
             
             scoreMultiplier = 1; 
