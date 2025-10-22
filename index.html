@@ -776,18 +776,12 @@
         }
 
         // === LÓGICA DEL JUEGO ===
-
-        // MODIFICACIÓN: La dificultad del nivel 8 aumenta con el puntaje
-        function getDifficultyMultiplier(level) {
-            if (level === MAX_LEVEL) { // Nivel 8 (Infinito)
-                // Base de dificultad del Nivel 8
-                const baseDifficulty = 1 + (MAX_LEVEL - 1) * 0.15; // 2.05
-                // Aumento progresivo cada 500 puntos (simula un nivel virtual)
-                const scoreIncrease = Math.floor(score / 500) * 0.05; 
-                return baseDifficulty + scoreIncrease;
-            }
+        
+        // Función base que define el multiplicador de dificultad por nivel
+        function getLevelBaseFactor(level) {
             return 1 + (level - 1) * 0.15;
         }
+
 
         function startNewLevel(level) {
             if (!userId || !userName) {
@@ -952,16 +946,32 @@
         }
 
         function spawnObject(currentTime) {
-            const levelDifficulty = getDifficultyMultiplier(currentLevel);
+            
+            // === LÓGICA DE DIFICULTAD CORREGIDA (Capping para L1-L7) ===
+            let totalDifficultyMultiplier;
+            const levelFactor = getLevelBaseFactor(currentLevel);
+            
+            if (currentLevel < MAX_LEVEL) { // Niveles 1-7: Dificultad escalada y CAPPED por score
+                let scoreFactor = 1 + Math.floor(score / 150) * 0.1;
+                // CORRECCIÓN CRÍTICA: Capping del score factor a 2.0 (doble de dificultad)
+                // para evitar que los niveles 6 y 7 se vuelvan inmanejables antes de alcanzar el nivel 8.
+                scoreFactor = Math.min(scoreFactor, 2.0); 
+                
+                totalDifficultyMultiplier = levelFactor * scoreFactor;
+            } else { // Nivel 8 (Infinito): Dificultad escalada más lentamente y uncapped
+                // El score factor aumenta cada 300 puntos en lugar de 150
+                const scoreFactor = 1 + Math.floor(score / 300) * 0.1; 
+                totalDifficultyMultiplier = levelFactor * scoreFactor;
+            }
+            // === FIN LÓGICA DE DIFICULTAD ===
+            
             const timeElapsed = currentTime - lastSpawnTime;
-            const scoreMultiplierForDifficulty = 1 + Math.floor(score / 150) * 0.1;
-            // El spawn interval se basa en la dificultad creciente (Score) y la dificultad del Nivel (Level)
-            const spawnInterval = BASE_SPAWN_INTERVAL_MS / (levelDifficulty * scoreMultiplierForDifficulty); 
+            const spawnInterval = BASE_SPAWN_INTERVAL_MS / totalDifficultyMultiplier; 
             
             // Lógica de spawn de Corazón (intervalo y límite)
             if (playerLives < PLAYER_MAX_LIVES && heartsSpawnedThisLevel < MAX_HEARTS_PER_LEVEL && currentTime - lastHeartSpawnTime > HEART_SPAWN_INTERVAL_MS) {
                 const x = Math.random() * (CANVAS_WIDTH - OBJECT_SIZE);
-                const speed = BASE_GAME_SPEED * levelDifficulty * scoreMultiplierForDifficulty * 0.9;
+                const speed = BASE_GAME_SPEED * totalDifficultyMultiplier * 0.9;
                 
                 fallingObjects.push(new FallingObject(x, -OBJECT_SIZE, 'heart', speed));
                 heartsSpawnedThisLevel++;
@@ -973,7 +983,7 @@
             if (timeElapsed > spawnInterval) {
                 lastSpawnTime = currentTime;
                 const x = Math.random() * (CANVAS_WIDTH - OBJECT_SIZE);
-                const speed = BASE_GAME_SPEED * levelDifficulty * scoreMultiplierForDifficulty * 0.9;
+                const speed = BASE_GAME_SPEED * totalDifficultyMultiplier * 0.9;
                 let objectType = 'donut';
                 const rand = Math.random();
 
