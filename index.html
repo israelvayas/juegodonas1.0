@@ -106,7 +106,7 @@
                 <div class="flex items-center mb-1">❤️ Corazón: +1 Vida (Máx 6). (Máx 3 por nivel)</div>
                 <div class="flex items-center mb-1">⚡ Puntos X2: Dobla el valor de las donas. (N2)</div>
                 <div class="flex items-center mb-1">🌟 Puntos X3: Triplica el valor de las donas. (N2)</div>
-                <div class="flex items-center mb-1">✨ Dona Inmune: No pierdes vida si cae una dona. (N3)</div>
+                <div class="flex items-center mb-1">⭐ Inmunidad Total: No pierdes vida por nada. (N3)</div>
                 <div class="flex items-center mb-1">🌀 Aspiradora: Cesta más grande.</div>
                 <div class="flex items-center mb-1">🛡️ Escudo: Resiste 1 golpe extra.</div>
                 <div class="flex items-center mb-1">🐌 Lento: Ralentiza objetos.</div>
@@ -626,10 +626,10 @@
                 effect: () => { scoreMultiplier = 3; },
                 cleanup: () => { scoreMultiplier = 1; }
             },
-            'noLoss': {
-                symbol: '✨',
-                color: '#9c27b0',
-                name: 'DONA INMUNE (NO VIDA)', 
+            'totalImmunity': { // MODIFICADO: INMUNIDAD TOTAL
+                symbol: '⭐', 
+                color: '#e67e22',
+                name: 'INMUNIDAD TOTAL', 
                 effect: () => {},
                 cleanup: () => {}
             }
@@ -943,7 +943,7 @@
                             availablePowerUps.push('x2', 'x3');
                         }
                         if (currentLevel >= 3) {
-                            availablePowerUps.push('noLoss');
+                            availablePowerUps.push('totalImmunity'); // MODIFICADO: Cambiado a 'totalImmunity'
                         }
                         
                         objectType = availablePowerUps[Math.floor(Math.random() * availablePowerUps.length)];
@@ -979,7 +979,8 @@
                 // Si es una dona y se pierde
                 if (object.type === 'donut') {
                     
-                    if (activePowerUp === 'noLoss' && Date.now() < powerUpEndTime) {
+                    // LÓGICA DE INMUNIDAD TOTAL (No pierde vida por dona caída)
+                    if (activePowerUp === 'totalImmunity' && Date.now() < powerUpEndTime) {
                         fallingObjects.splice(index, 1); 
                         return true; 
                     }
@@ -1044,6 +1045,15 @@
                     playCollectSound(); 
                 }
             } else if (object.type === 'bomb' || object.type === 'stone') {
+                
+                // LÓGICA DE INMUNIDAD TOTAL (No pierde vida por golpe)
+                if (activePowerUp === 'totalImmunity' && Date.now() < powerUpEndTime) {
+                    playPowerUpSound(); // Sonido de absorción
+                    // Pequeño efecto visual para confirmar el bloque
+                    canvas.style.borderColor = powerUps['totalImmunity'].color; 
+                    setTimeout(() => canvas.style.borderColor = '#f4d03f', 150); 
+                    return; 
+                }
                 
                 if (player.isInvulnerable) {
                     return; 
